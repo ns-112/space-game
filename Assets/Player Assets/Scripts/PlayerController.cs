@@ -3,13 +3,20 @@ using UnityEngine.InputSystem;
 
 //Todo: make player's hitbox a cube since a plane has no height, 
 //and put a texture on the plane instead
-public class Movement : MonoBehaviour
+public class PlayerController : MonoBehaviour
 {
-    
-    public float rotationSpeed = 10.5f;
+    [SerializeField]
+    private float rotationSpeed = 10.5f;
+    [SerializeField]
+    private float playerSpeed = 15f;
     [SerializeField]
     private float bulletSpeed = 3f;
     public float bulletSpeedMultiplier = 1f;
+    [SerializeField]
+    private float shieldFullCDMod = 0.5f;
+    [SerializeField]
+    private float shieldMod = 0.5f;
+    private float resetTimer, waitTimer = 1;
 
     public GameObject BulletPrefab;
     public GameObject BulletContainer;
@@ -27,6 +34,7 @@ public class Movement : MonoBehaviour
     private InputAction leftRight;
     private InputAction upDown;
     private InputAction fire;
+    private InputAction shield;
     
     void Start()
     {   
@@ -36,6 +44,7 @@ public class Movement : MonoBehaviour
         leftRight = inputActions["LeftRight"];
         upDown = inputActions["UpDown"];
         fire = inputActions["Fire"];
+        shield = inputActions["Shield"];
 
         rb = GetComponent<Rigidbody>();
 
@@ -45,14 +54,96 @@ public class Movement : MonoBehaviour
         
     }
 
- 
+    //Called in Update
+    void HandleShield()
+    {
+        bool shieldPressed = shield.IsPressed();
+        var gameManager = GameManager.Instance;
+
+        gameManager.ShieldActive = false; //default
+
+        //If pressing shield and not in full cooldown
+        if (shieldPressed && !gameManager.ShieldFullCooldown)
+        {
+            resetTimer = 1f; // reset usage delay
+
+            if (gameManager.Shield > 0f)
+            {
+                //Use shield
+                gameManager.ShieldActive = true;
+                gameManager.Shield -= Time.deltaTime * shieldMod;
+                gameManager.Shield = Mathf.Max(gameManager.Shield, 0f);
+
+                //If shield just hit 0, start full cooldown
+                if (gameManager.Shield <= 0f)
+                {
+                    gameManager.ShieldFullCooldown = true;
+                    gameManager.ShieldActive = false;
+                    waitTimer = 0.5f; //pause before recharging
+                }
+            }
+        }
+        else
+        {
+            //Recharge shield
+            if (waitTimer > 0f)
+            {
+                waitTimer -= Time.deltaTime;
+                return; //wait before starting recharge
+            }
+
+            float rechargeRate = gameManager.ShieldFullCooldown ? shieldFullCDMod : shieldMod;
+
+            gameManager.Shield += Time.deltaTime * rechargeRate;
+
+            if (gameManager.Shield >= 100f)
+            {
+                gameManager.Shield = 100f;
+                gameManager.ShieldFullCooldown = false;
+            }
+        }
+    }
+
+    //Recharge immediately (full cooldown mode)
+    //Unused
+    void RechargeShield(GameManager gameManager, float rate)
+    {
+        gameManager.Shield += Time.deltaTime * rate;
+        if (gameManager.Shield >= 100f)
+        {
+            gameManager.Shield = 100f;
+            gameManager.ShieldFullCooldown = false;
+        }
+    }
+
+    //Recharge after reset timer
+    //Unused currently
+    void RechargeShieldWithDelay(GameManager gameManager, float rate)
+    {
+        if (resetTimer > 0f)
+        {
+            resetTimer -= Time.deltaTime;
+            return;
+        }
+
+        resetTimer = 0f;
+        gameManager.Shield += Time.deltaTime * rate;
+
+        if (gameManager.Shield >= 100f)
+        {
+            gameManager.Shield = 100f;
+            gameManager.ShieldFullCooldown = false;
+        }
+    }
     
     void Update()
     {
+        //Handle inputs
         float x = leftRight.ReadValue<float>();
         float y = upDown.ReadValue<float>();
+        HandleShield();
 
-        //Vector2 movement = new Vector2(x, y);
+        //Create Bullet(s)
         if (fire.WasPressedThisFrame())
         {
             GameObject pref = Instantiate(BulletPrefab, BulletContainer.transform);
@@ -62,6 +153,8 @@ public class Movement : MonoBehaviour
             pref.GetComponent<ParticleSystem>().Clear();
             Physics.IgnoreCollision(transform.GetChild(0).GetChild(0).GetComponent<Collider>(), pref.GetComponent<Collider>());
             Physics.IgnoreCollision(transform.GetChild(1).GetChild(0).GetComponent<Collider>(), pref.GetComponent<Collider>());
+
+            //Create a duplicate bullet at the offscreen player if its active
             if (other.activeSelf)
             {
                 GameObject pref2 = Instantiate(BulletPrefab, BulletContainer.transform);
@@ -106,21 +199,24 @@ public class Movement : MonoBehaviour
         }
         */
         
-        rb.AddForce(new Vector3(x*2, 0, y*2));
+        //Add velocity
+        rb.AddForce(new Vector3(x*2, 0, y*2) * Time.deltaTime * (playerSpeed * 10));
+
+        //X Bounds
         if (transform.position.x < -8.35f || transform.position.x > 8.35f)
         {
             rb.linearVelocity = new Vector3(-rb.linearVelocity.x, 0, rb.linearVelocity.z);
 
             if (transform.position.x > 0)
             {
-                transform.position = new Vector3(8.35f, 0, transform.position.z);
+                transform.position = new Vector3(8.35f, 1, transform.position.z);
             } else
             {
-                transform.position = new Vector3(-8.35f, 0, transform.position.z);
+                transform.position = new Vector3(-8.35f, 1, transform.position.z);
             }
         }
         
-
+        //Y Bounds
         if (transform.position.z > 0)
         {
             if (transform.position.z > 4)
@@ -130,8 +226,8 @@ public class Movement : MonoBehaviour
             {
                 other.SetActive(false);
             }
-            other.transform.position = new Vector3(transform.position.x, 0, transform.position.z - 10f);
-            other.transform.eulerAngles = new Vector3(transform.eulerAngles.x + 90, 0, transform.eulerAngles.z);
+            other.transform.position = new Vector3(transform.position.x, 1, transform.position.z - 10f);
+            //other.transform.eulerAngles = new Vector3(transform.eulerAngles.x + 90, 0, transform.eulerAngles.z);
         } else
         {
             if (transform.position.z < -4)
@@ -141,8 +237,8 @@ public class Movement : MonoBehaviour
             {
                 other.SetActive(false);
             }
-            other.transform.position = new Vector3(transform.position.x, 0, transform.position.z + 10f);
-            other.transform.eulerAngles = new Vector3(transform.eulerAngles.x + 90, 0, transform.eulerAngles.z);
+            other.transform.position = new Vector3(transform.position.x, 1, transform.position.z + 10f);
+            //other.transform.eulerAngles = new Vector3(transform.eulerAngles.x + 90, 0, transform.eulerAngles.z);
         }
 
         
@@ -150,13 +246,16 @@ public class Movement : MonoBehaviour
     }
 
     void FixedUpdate()
-    {
+    {   
+        //Loop on Y
         if (transform.position.z < -5f)
         {
-            transform.position = new Vector3(transform.position.x, 0, 5f);
+            transform.position = new Vector3(transform.position.x, 1, 5f);
         } else if (transform.position.z > 5f)
         {
-            transform.position = new Vector3(transform.position.x, 0, -5f);
+            transform.position = new Vector3(transform.position.x, 1, -5f);
         }
     }
+
+    
 }

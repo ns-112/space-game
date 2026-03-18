@@ -6,7 +6,9 @@ TagManager:
   tags:
   - PlayerHB
   - BulletHB
+  - EnemyBulletHB
   - EnemyHB
+  - MainPlayer
   layers:
   - Default
   - TransparentFX

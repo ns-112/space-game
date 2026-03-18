@@ -23,18 +23,18 @@ public class Bullet : MonoBehaviour
             Debug.LogWarning("No parent added to child: " + name);
             Destroy(gameObject);
         }
-        transform.position = new Vector3(transform.position.x + (Time.deltaTime * (speed * MainParent.GetComponent<Movement>().bulletSpeedMultiplier)), 0, transform.position.z);
+        transform.position = new Vector3(transform.position.x + (Time.deltaTime * (speed * MainParent.GetComponent<PlayerController>().bulletSpeedMultiplier)), 0, transform.position.z);
         if (transform.position.x > 15)
         {
             Destroy(gameObject);
         }
     }
 
-    void OnCollisionEnter(Collision collision)
+    void OllisionEnter(Collision collision)
     {
-        if (collision.transform.tag == "EnemyHB")
+       if (collision.transform.CompareTag("BulletHB"))
         {
-            Destroy(collision.gameObject);
+            Physics.IgnoreCollision(GetComponent<Collider>(), collision.gameObject.GetComponent<Collider>());
         }
     }
 }

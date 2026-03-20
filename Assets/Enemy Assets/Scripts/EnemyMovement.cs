@@ -37,22 +37,26 @@ public class EnemyMovement : MonoBehaviour
 
     
     void Update()
-    {
-        switch (enemyType)
-        {   
-            //Normal Enemy Movement
-            case GameManager.EnemyType.Default:
-            transform.position = new Vector3(transform.position.x - (Time.deltaTime * enemySpeed), 0, spawnPosition.y);
-            break;
-            case GameManager.EnemyType.Wave:
-            transform.position = new Vector3(transform.position.x - (Time.deltaTime * enemySpeed), 0, spawnPosition.y + Mathf.Sin(Time.time * 2) * 2 * genericMultiplier);
-            break;
+    {   
+        if (GameManager.Instance.gameRunning)
+        {
+            switch (enemyType)
+            {   
+                //Normal Enemy Movement
+                case GameManager.EnemyType.Default:
+                transform.position = new Vector3(transform.position.x - (Time.deltaTime * enemySpeed), 0, spawnPosition.y);
+                break;
+                case GameManager.EnemyType.Wave:
+                transform.position = new Vector3(transform.position.x - (Time.deltaTime * enemySpeed), 0, spawnPosition.y + Mathf.Sin(Time.time * 2) * 2 * genericMultiplier);
+                break;
+            }
+            
+            if (transform.position.x < -11)
+            {
+                Destroy(gameObject);
+            } 
         }
         
-        if (transform.position.x < -11)
-        {
-            Destroy(gameObject);
-        }
     }
 
 }

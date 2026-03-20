@@ -15,9 +15,10 @@ public class EnemyMainHB : MonoBehaviour
                 }
             } else
             {
+                GameManager.Instance.SpawnPlayerHitEffect(collision.transform.position);
                 GameManager.Instance.Health -= 10;
             }
-            GameManager.Instance.SpawnEnemyDeathParticle(transform.parent.position);
+            GameManager.Instance.SpawnEnemyDeathEffect(transform.parent.position);
             Destroy(transform.parent.gameObject);
             
         }

@@ -776,9 +776,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PointsContainer
   effects: []
+  gameRunning: 1
   timerRange: {x: 1, y: 5}
   enemyPrefab: {fileID: 1799726408778173822, guid: 50ab1bde5b74f8847bc8d9c15f8baa4f, type: 3}
   enemyExplosionPrefab: {fileID: 8883852505357926749, guid: 87f622d32c77a924cb4d32d7ec694f10, type: 3}
+  playerHitPrefab: {fileID: 3620415834139315880, guid: 90a55f0a1cc0481409ce53ec38b41fb0, type: 3}
+  playerDeathPrefab: {fileID: 3620415834139315880, guid: 84591a03ae3e3cc41bbb0efa3bef6f81, type: 3}
 --- !u!4 &625236805
 Transform:
   m_ObjectHideFlags: 0

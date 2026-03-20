@@ -16,7 +16,7 @@ public class EnemyBullletHB : MonoBehaviour
         {
             Destroy(collision.gameObject);
             GameManager.Instance.Points += 10;
-            GameManager.Instance.SpawnEnemyDeathParticle(transform.parent.position);
+            GameManager.Instance.SpawnEnemyDeathEffect(transform.parent.position);
             Destroy(transform.parent.gameObject);
             
         }

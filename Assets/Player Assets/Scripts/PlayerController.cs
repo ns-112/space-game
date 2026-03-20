@@ -137,109 +137,119 @@ public class PlayerController : MonoBehaviour
     }
     
     void Update()
-    {
-        //Handle inputs
-        float x = leftRight.ReadValue<float>();
-        float y = upDown.ReadValue<float>();
-        HandleShield();
-
-        //Create Bullet(s)
-        if (fire.WasPressedThisFrame())
+    {   
+        if (GameManager.Instance.gameRunning)
         {
-            GameObject pref = Instantiate(BulletPrefab, BulletContainer.transform);
-            pref.transform.position = transform.GetChild(0).GetChild(1).transform.position;
-            pref.GetComponent<Bullet>().MainParent = gameObject;
-            pref.GetComponent<Bullet>().speed = bulletSpeed;
-            pref.GetComponent<ParticleSystem>().Clear();
-            Physics.IgnoreCollision(transform.GetChild(0).GetChild(0).GetComponent<Collider>(), pref.GetComponent<Collider>());
-            Physics.IgnoreCollision(transform.GetChild(1).GetChild(0).GetComponent<Collider>(), pref.GetComponent<Collider>());
+            //Handle inputs
+            float x = leftRight.ReadValue<float>();
+            float y = upDown.ReadValue<float>();
+            HandleShield();
 
-            //Create a duplicate bullet at the offscreen player if its active
-            if (other.activeSelf)
+            //Create Bullet(s)
+            if (fire.WasPressedThisFrame())
             {
-                GameObject pref2 = Instantiate(BulletPrefab, BulletContainer.transform);
-                pref2.transform.position = transform.GetChild(1).GetChild(1).transform.position;
-                pref2.GetComponent<Bullet>().MainParent = gameObject;
-                pref2.GetComponent<Bullet>().speed = bulletSpeed;
-                pref2.GetComponent<ParticleSystem>().Clear();
-                Physics.IgnoreCollision(transform.GetChild(0).GetChild(0).GetComponent<Collider>(), pref2.GetComponent<Collider>());
-                Physics.IgnoreCollision(transform.GetChild(1).GetChild(0).GetComponent<Collider>(), pref2.GetComponent<Collider>());
+                GameObject pref = Instantiate(BulletPrefab, BulletContainer.transform);
+                pref.transform.position = transform.GetChild(0).GetChild(1).transform.position;
+                pref.GetComponent<Bullet>().MainParent = gameObject;
+                pref.GetComponent<Bullet>().speed = bulletSpeed;
+                pref.GetComponent<ParticleSystem>().Clear();
+                Physics.IgnoreCollision(transform.GetChild(0).GetChild(0).GetComponent<Collider>(), pref.GetComponent<Collider>());
+                Physics.IgnoreCollision(transform.GetChild(1).GetChild(0).GetComponent<Collider>(), pref.GetComponent<Collider>());
 
+                //Create a duplicate bullet at the offscreen player if its active
+                if (other.activeSelf)
+                {
+                    GameObject pref2 = Instantiate(BulletPrefab, BulletContainer.transform);
+                    pref2.transform.position = transform.GetChild(1).GetChild(1).transform.position;
+                    pref2.GetComponent<Bullet>().MainParent = gameObject;
+                    pref2.GetComponent<Bullet>().speed = bulletSpeed;
+                    pref2.GetComponent<ParticleSystem>().Clear();
+                    Physics.IgnoreCollision(transform.GetChild(0).GetChild(0).GetComponent<Collider>(), pref2.GetComponent<Collider>());
+                    Physics.IgnoreCollision(transform.GetChild(1).GetChild(0).GetComponent<Collider>(), pref2.GetComponent<Collider>());
+
+                    
+                    
+                }
                 
-                
+            }
+
+
+            //Scrapped smooth rotate to mouse: jittered when going offscreen
+
+            /*
+            Vector2 mouse = Mouse.current.position.ReadValue();
+
+            Ray ray = Camera.main.ScreenPointToRay(mouse);
+            Plane plane = new(Vector3.up, transform.position);
+
+            if (plane.Raycast(ray, out float distance))
+            {
+                Vector3 mousePos = ray.GetPoint(distance);
+
+                //convert from screen to world pos
+                Vector3 targetDirection = mousePos - transform.position;
+                targetDirection.y = 0; //ignore y
+
+                if (targetDirection.sqrMagnitude > 0.001f) // avoid zero-length vectors
+                {
+                    //target rotation
+                    Quaternion targetRotation = Quaternion.LookRotation(targetDirection);
+
+                    //Smooth lerp towards mouse pos
+                    //transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, rotationSpeed * Time.deltaTime);
+                }
+            }
+            */
+            
+            //Add velocity
+            rb.AddForce(new Vector3(x*2, 0, y*2) * Time.deltaTime * (playerSpeed * 10));
+
+            //X Bounds
+            if (transform.position.x < -8.35f || transform.position.x > 8.35f)
+            {
+                rb.linearVelocity = new Vector3(-rb.linearVelocity.x, 0, rb.linearVelocity.z);
+
+                if (transform.position.x > 0)
+                {
+                    transform.position = new Vector3(8.35f, 1, transform.position.z);
+                } else
+                {
+                    transform.position = new Vector3(-8.35f, 1, transform.position.z);
+                }
             }
             
-        }
-
-
-        //Scrapped smooth rotate to mouse: jittered when going offscreen
-
-        /*
-        Vector2 mouse = Mouse.current.position.ReadValue();
-
-        Ray ray = Camera.main.ScreenPointToRay(mouse);
-        Plane plane = new(Vector3.up, transform.position);
-
-        if (plane.Raycast(ray, out float distance))
-        {
-            Vector3 mousePos = ray.GetPoint(distance);
-
-            //convert from screen to world pos
-            Vector3 targetDirection = mousePos - transform.position;
-            targetDirection.y = 0; //ignore y
-
-            if (targetDirection.sqrMagnitude > 0.001f) // avoid zero-length vectors
+            //Y Bounds
+            if (transform.position.z > 0)
             {
-                //target rotation
-                Quaternion targetRotation = Quaternion.LookRotation(targetDirection);
-
-                //Smooth lerp towards mouse pos
-                //transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, rotationSpeed * Time.deltaTime);
-            }
-        }
-        */
-        
-        //Add velocity
-        rb.AddForce(new Vector3(x*2, 0, y*2) * Time.deltaTime * (playerSpeed * 10));
-
-        //X Bounds
-        if (transform.position.x < -8.35f || transform.position.x > 8.35f)
-        {
-            rb.linearVelocity = new Vector3(-rb.linearVelocity.x, 0, rb.linearVelocity.z);
-
-            if (transform.position.x > 0)
-            {
-                transform.position = new Vector3(8.35f, 1, transform.position.z);
+                if (transform.position.z > 4)
+                {
+                    other.SetActive(true);
+                } else
+                {
+                    other.SetActive(false);
+                }
+                other.transform.position = new Vector3(transform.position.x, 1, transform.position.z - 10f);
+                //other.transform.eulerAngles = new Vector3(transform.eulerAngles.x + 90, 0, transform.eulerAngles.z);
             } else
             {
-                transform.position = new Vector3(-8.35f, 1, transform.position.z);
+                if (transform.position.z < -4)
+                {
+                    other.SetActive(true);
+                } else
+                {
+                    other.SetActive(false);
+                }
+                other.transform.position = new Vector3(transform.position.x, 1, transform.position.z + 10f);
+                //other.transform.eulerAngles = new Vector3(transform.eulerAngles.x + 90, 0, transform.eulerAngles.z);
+            }
+            if (GameManager.Instance.Health <= 5)
+            {
+                GameManager.Instance.SpawnPlayerDeathEffect(transform.position);
+                GameManager.Instance.gameRunning = false;
+                Destroy(gameObject);
             }
         }
         
-        //Y Bounds
-        if (transform.position.z > 0)
-        {
-            if (transform.position.z > 4)
-            {
-                other.SetActive(true);
-            } else
-            {
-                other.SetActive(false);
-            }
-            other.transform.position = new Vector3(transform.position.x, 1, transform.position.z - 10f);
-            //other.transform.eulerAngles = new Vector3(transform.eulerAngles.x + 90, 0, transform.eulerAngles.z);
-        } else
-        {
-            if (transform.position.z < -4)
-            {
-                other.SetActive(true);
-            } else
-            {
-                other.SetActive(false);
-            }
-            other.transform.position = new Vector3(transform.position.x, 1, transform.position.z + 10f);
-            //other.transform.eulerAngles = new Vector3(transform.eulerAngles.x + 90, 0, transform.eulerAngles.z);
-        }
 
         
 

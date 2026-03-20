@@ -23,6 +23,8 @@ public class GameManager : MonoBehaviour
     private bool healthUpdated = false;
     private bool shieldUpdated = false;
 
+    public bool gameRunning = true;
+
 
     private float enemySpawnTimer = 5f;
     [SerializeField]
@@ -31,6 +33,10 @@ public class GameManager : MonoBehaviour
     private GameObject enemyPrefab;
     [SerializeField]
     private GameObject enemyExplosionPrefab;
+    [SerializeField]
+    private GameObject playerHitPrefab;
+    [SerializeField]
+    private GameObject playerDeathPrefab;
 
     public enum EnemyType
     {
@@ -38,9 +44,27 @@ public class GameManager : MonoBehaviour
         Wave
     };
 
-    public void SpawnEnemyDeathParticle(Vector3 position)
+    public void SpawnEnemyDeathEffect(Vector3 position)
     {
         GameObject obj = Instantiate(enemyExplosionPrefab, GameObject.Find("[Effect] EffectsContainer").transform);
+        obj.transform.position = position;
+        obj.GetComponent<ParticleSystem>().Play();
+        effects.Add(obj);
+        
+    }
+
+    public void SpawnPlayerDeathEffect(Vector3 position)
+    {
+        GameObject obj = Instantiate(playerDeathPrefab, GameObject.Find("[Effect] EffectsContainer").transform);
+        obj.transform.position = position;
+        obj.GetComponent<ParticleSystem>().Play();
+        effects.Add(obj);
+        
+    }
+
+    public void SpawnPlayerHitEffect(Vector3 position)
+    {
+        GameObject obj = Instantiate(playerHitPrefab, GameObject.Find("[Effect] EffectsContainer").transform);
         obj.transform.position = position;
         obj.GetComponent<ParticleSystem>().Play();
         effects.Add(obj);
@@ -127,16 +151,19 @@ public class GameManager : MonoBehaviour
     }
 
     void Update()
-    {
-        if (enemySpawnTimer <= 0)
+    {   if (gameRunning)
         {
-            Instantiate(enemyPrefab);
-            enemySpawnTimer = UnityEngine.Random.Range(timerRange.x, timerRange.y);
-        } else
-        {
-            enemySpawnTimer -= Time.deltaTime;
-        }
+            if (enemySpawnTimer <= 0)
+            {
+                Instantiate(enemyPrefab);
+                enemySpawnTimer = UnityEngine.Random.Range(timerRange.x, timerRange.y);
+            } else
+            {
+                enemySpawnTimer -= Time.deltaTime;
+            }
 
+        }
+        
         for (int i = effects.Count - 1; i >= 0; i--)
         {   
             //i like the c++ based checks more

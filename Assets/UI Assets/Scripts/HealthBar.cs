@@ -3,6 +3,7 @@ using UnityEngine.UI;
 
 public class HealthBar : MonoBehaviour
 {
+    //440 -> 510
     private Slider slider;
 
     [SerializeField]
@@ -31,4 +32,5 @@ public class HealthBar : MonoBehaviour
         midValue = Mathf.SmoothDamp(midValue, toValue, ref velocity, smoothTime);
         slider.value = midValue;
     }
+
 }

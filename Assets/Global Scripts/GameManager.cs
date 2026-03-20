@@ -12,6 +12,9 @@ public class GameManager : MonoBehaviour
     [SerializeField]
     private List<GameObject> effects;
 
+
+    private Vector3Int gameTime = new Vector3Int(0, 0, 0);
+    private float gameTimeIncrementor = 0;
     private int points;
     private float health = 1;
     private float shield = 1;
@@ -113,6 +116,12 @@ public class GameManager : MonoBehaviour
         }
     }
 
+   //Returns a Vector of 3 ints (hours, minutes, seconds)
+    public Vector3Int getGameTime()
+    {
+        return gameTime;
+    }
+
     public float SmoothShield
     {
         get { return smoothShield; }
@@ -150,9 +159,33 @@ public class GameManager : MonoBehaviour
         set { shieldFullCooldown = value; }
     }
 
+    void UpdateGameTime()
+    {
+        gameTimeIncrementor += Time.deltaTime;
+        gameTime.z = (int)gameTimeIncrementor;
+        //seconds
+        if (gameTime.z == 60)
+        {
+            gameTime.y += 1;
+            gameTime.z = 0;
+        }
+        //minutes
+        if (gameTime.y == 60)
+        {
+            gameTime.x += 1;
+            gameTime.y = 0;
+        }
+        //hours
+        if (gameTime.x >= 60)
+        {
+            Debug.Log("???");
+        }
+    }
+
     void Update()
     {   if (gameRunning)
         {
+            UpdateGameTime();
             if (enemySpawnTimer <= 0)
             {
                 Instantiate(enemyPrefab);

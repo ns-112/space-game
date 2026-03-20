@@ -1,0 +1,10 @@
+* [33m370cbb3[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m updated effects
+* [33ma900245[m Hopefully fixes UI
+* [33mab979a2[m[33m ([m[1;31morigin/enemies[m[33m, [m[1;31morigin/art-assets[m[33m, [m[1;32menemies[m[33m, [m[1;32mart-assets[m[33m)[m Enemies, Health, Shield, and Score
+* [33ma33ede2[m gitignore fixes
+* [33m7a3471c[m csproj push
+* [33m0baf6d9[m bounds and bullets
+* [33m240efb7[m movement adjustments
+* [33m8d86cd5[m Basic player controls and setup
+* [33mb5e80d8[m initial
+* [33mf39995d[m initial

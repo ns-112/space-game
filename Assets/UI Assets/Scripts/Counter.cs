@@ -16,7 +16,7 @@ public class Counter : MonoBehaviour
     {
         if (GameManager.Instance.PointsUpdated)
         {
-            label.text = "Points: " + GameManager.Instance.Points.ToString();
+            label.text = GameManager.Instance.Points.ToString();
             GameManager.Instance.PointsUpdated = false;
         }
     }

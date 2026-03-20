@@ -1,13 +1,21 @@
+using System.Collections;
+using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 
 
 public class GameManager : MonoBehaviour
 {
     public static GameManager Instance { get; private set; }
+    
+    //list of effects (particles) is auto deleted by GameManager
+    [SerializeField]
+    private List<GameObject> effects;
 
     private int points;
     private float health = 1;
     private float shield = 1;
+    private float smoothShield = 1;
     private bool shieldActive = false;
     private bool shieldFullCooldown = false;
 
@@ -16,12 +24,28 @@ public class GameManager : MonoBehaviour
     private bool shieldUpdated = false;
 
 
-    private float spawnTimer = 5f;
+    private float enemySpawnTimer = 5f;
     [SerializeField]
     private Vector2 timerRange = new Vector2(2, 15);
     [SerializeField]
     private GameObject enemyPrefab;
+    [SerializeField]
+    private GameObject enemyExplosionPrefab;
 
+    public enum EnemyType
+    {
+        Default,
+        Wave
+    };
+
+    public void SpawnEnemyDeathParticle(Vector3 position)
+    {
+        GameObject obj = Instantiate(enemyExplosionPrefab, GameObject.Find("[Effect] EffectsContainer").transform);
+        obj.transform.position = position;
+        obj.GetComponent<ParticleSystem>().Play();
+        effects.Add(obj);
+        
+    }
 
     private void Awake()
     {
@@ -54,6 +78,7 @@ public class GameManager : MonoBehaviour
         }
     }
 
+
     public float Shield
     {
         get { return shield * 100f; } 
@@ -64,6 +89,11 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    public float SmoothShield
+    {
+        get { return smoothShield; }
+        set { smoothShield = value; }
+    }
     
 
     public bool PointsUpdated
@@ -98,13 +128,32 @@ public class GameManager : MonoBehaviour
 
     void Update()
     {
-        if (spawnTimer <= 0)
+        if (enemySpawnTimer <= 0)
         {
-            GameObject obj = Instantiate(enemyPrefab);
-            spawnTimer = UnityEngine.Random.Range(timerRange.x, timerRange.y);
+            Instantiate(enemyPrefab);
+            enemySpawnTimer = UnityEngine.Random.Range(timerRange.x, timerRange.y);
         } else
         {
-            spawnTimer -= Time.deltaTime;
+            enemySpawnTimer -= Time.deltaTime;
+        }
+
+        for (int i = effects.Count - 1; i >= 0; i--)
+        {   
+            //i like the c++ based checks more
+
+            //Check effect type & update accordingly
+
+            //Particle Bursts
+            if (effects[i].TryGetComponent(out ParticleSystem sys))
+            {
+                if (sys.isStopped)
+                {
+                    Destroy(effects[i]);
+                    effects.RemoveAt(i);
+                }
+            }
+            
+            
         }
     }
 }

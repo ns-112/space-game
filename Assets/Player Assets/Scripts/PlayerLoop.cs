@@ -16,7 +16,7 @@ public class PlayerLoop : MonoBehaviour
     {   
         if (transform.position.z > 0)
         {
-            if (transform.position.z > 4)
+            if (transform.position.z > 3)
             {
                 other.SetActive(true);
             } else
@@ -27,7 +27,7 @@ public class PlayerLoop : MonoBehaviour
             other.transform.eulerAngles = new Vector3(transform.eulerAngles.x + 90, 0, transform.eulerAngles.z);
         } else
         {
-            if (transform.position.z < -4)
+            if (transform.position.z < -3)
             {
                 other.SetActive(true);
             } else

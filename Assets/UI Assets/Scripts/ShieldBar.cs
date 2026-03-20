@@ -30,5 +30,6 @@ public class ShieldBar : MonoBehaviour
 
         midValue = Mathf.SmoothDamp(midValue, toValue, ref velocity, smoothTime);
         slider.value = midValue;
+        GameManager.Instance.SmoothShield = midValue;
     }
 }

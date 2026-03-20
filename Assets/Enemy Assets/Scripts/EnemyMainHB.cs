@@ -17,7 +17,7 @@ public class EnemyMainHB : MonoBehaviour
             {
                 GameManager.Instance.Health -= 10;
             }
-            
+            GameManager.Instance.SpawnEnemyDeathParticle(transform.parent.position);
             Destroy(transform.parent.gameObject);
             
         }

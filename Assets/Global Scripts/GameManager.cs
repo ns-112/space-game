@@ -199,7 +199,7 @@ public class GameManager : MonoBehaviour
         
         for (int i = effects.Count - 1; i >= 0; i--)
         {   
-            //i like the c++ based checks more
+           
 
             //Check effect type & update accordingly
 

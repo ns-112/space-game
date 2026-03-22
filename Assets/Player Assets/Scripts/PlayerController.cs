@@ -25,7 +25,9 @@ public class PlayerController : MonoBehaviour
     private GameObject other;
     private Camera camera;
 
-
+    [SerializeField]
+    private float bulletCD = 0.25f;
+    private float bulletCDinitial;
 
 
     private InputActionAsset inputActions;
@@ -38,6 +40,7 @@ public class PlayerController : MonoBehaviour
     
     void Start()
     {   
+        bulletCDinitial = bulletCD;
         //Get the input actions from the component so i don't have to import it twice
         inputActions = GetComponent<PlayerInput>().actions;
 
@@ -146,8 +149,9 @@ public class PlayerController : MonoBehaviour
             HandleShield();
 
             //Create Bullet(s)
-            if (fire.WasPressedThisFrame())
+            if (fire.WasPressedThisFrame() && bulletCD == 0)
             {
+                bulletCD = bulletCDinitial;
                 GameObject pref = Instantiate(BulletPrefab, BulletContainer.transform);
                 pref.transform.position = transform.GetChild(0).GetChild(1).transform.position;
                 pref.GetComponent<Bullet>().MainParent = gameObject;
@@ -264,6 +268,14 @@ public class PlayerController : MonoBehaviour
         } else if (transform.position.z > 5f)
         {
             transform.position = new Vector3(transform.position.x, 1, -5f);
+        }
+
+        if (bulletCD > 0)
+        {
+            bulletCD -= Time.deltaTime;
+        } else
+        {
+            bulletCD = 0;
         }
     }
 

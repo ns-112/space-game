@@ -1,10 +1,9 @@
 using System;
 using UnityEngine;
 
-public class Bullet : MonoBehaviour
+public class EnemyBullet : MonoBehaviour
 {   
-    [NonSerialized]
-    public GameObject MainParent;
+    
     [NonSerialized]
     public float speed;
     void Start()
@@ -18,12 +17,8 @@ public class Bullet : MonoBehaviour
     // Update is called once per frame
     void FixedUpdate()
     {
-        if (!MainParent)
-        {   
-            Debug.LogWarning("No parent added to child: " + name);
-            Destroy(gameObject);
-        }
-        transform.position = new Vector3(transform.position.x + (Time.deltaTime * (speed * MainParent.GetComponent<PlayerController>().bulletSpeedMultiplier)), 0, transform.position.z);
+        
+        transform.position = new Vector3(transform.position.x - (Time.deltaTime * speed), 0, transform.position.z);
         if (transform.position.x > 15)
         {
             Destroy(gameObject);

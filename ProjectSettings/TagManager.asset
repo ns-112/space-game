@@ -9,6 +9,7 @@ TagManager:
   - EnemyBulletHB
   - EnemyHB
   - MainPlayer
+  - PlayerDeath
   layers:
   - Default
   - TransparentFX

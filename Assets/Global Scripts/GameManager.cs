@@ -2,6 +2,15 @@ using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.SceneManagement;
+using TMPro;
+using UnityEngine.UI;
+
+public static class GameData
+{
+    public static int points;
+    public static string time;
+}
 
 
 public class GameManager : MonoBehaviour
@@ -13,9 +22,9 @@ public class GameManager : MonoBehaviour
     private List<GameObject> effects;
 
 
-    private Vector3Int gameTime = new Vector3Int(0, 0, 0);
+    private static Vector3Int gameTime = new Vector3Int(0, 0, 0);
     private float gameTimeIncrementor = 0;
-    private int points;
+    private static int points;
     private float health = 1;
     private float shield = 1;
     private float smoothShield = 1;
@@ -85,6 +94,8 @@ public class GameManager : MonoBehaviour
         {
             Instance = this;
         }
+        GameData.time = "00:00:00";
+        GameData.points = 0;
     }
 
     //Getters and setters
@@ -182,8 +193,11 @@ public class GameManager : MonoBehaviour
         }
     }
 
+   
+
     void Update()
-    {   if (gameRunning)
+    {   
+        if (gameRunning)
         {
             UpdateGameTime();
             if (enemySpawnTimer <= 0)
@@ -208,8 +222,28 @@ public class GameManager : MonoBehaviour
             {
                 if (sys.isStopped)
                 {
-                    Destroy(effects[i]);
-                    effects.RemoveAt(i);
+                    if (effects[i].CompareTag("PlayerDeath"))
+                    {
+                        Destroy(effects[i]);
+                        effects.RemoveAt(i);
+                        //DontDestroyOnLoad(gameObject);
+                        
+                        
+                        int x, y, z;
+                        x = gameTime.x;
+                        y = gameTime.y;
+                        z = gameTime.z;
+                        GameData.time = ((x < 10) ? "0" + x.ToString() : x.ToString()) + ":" + ((y < 10) ? "0" + y.ToString() : y.ToString()) + ":" + ((z < 10) ? "0" + z.ToString() : z.ToString());
+                        GameData.points = points;
+                        SceneManager.LoadScene("GameOver");
+                        
+                    } else
+                    {
+                        Destroy(effects[i]);
+                        effects.RemoveAt(i);
+                    }
+                    
+                    
                 }
             }
             

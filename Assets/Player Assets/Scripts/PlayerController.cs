@@ -26,7 +26,7 @@ public class PlayerController : MonoBehaviour
     private Camera camera;
 
     [SerializeField]
-    private float bulletCD = 0.25f;
+    private float bulletCD = .5f;
     private float bulletCDinitial;
 
 
@@ -149,7 +149,7 @@ public class PlayerController : MonoBehaviour
             HandleShield();
 
             //Create Bullet(s)
-            if (fire.WasPressedThisFrame() && bulletCD == 0)
+            if (fire.WasPressedThisFrame() && bulletCD <= 0f)
             {
                 bulletCD = bulletCDinitial;
                 GameObject pref = Instantiate(BulletPrefab, BulletContainer.transform);

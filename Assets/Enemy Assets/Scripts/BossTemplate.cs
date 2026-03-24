@@ -22,7 +22,8 @@ public class BossTemplate : MonoBehaviour
     private float idleSpeed;
     private float angle;
     private float centerPoint = 6;
-
+    public int MaxHits => maxHits;
+    public int CurrentHits => currentHits;
     public BossStage stage = BossStage.IDLE;
 
     //reference to shield
@@ -44,6 +45,8 @@ public class BossTemplate : MonoBehaviour
             Destroy(gameObject);
         }
     }
+
+
 
     void Update()
     {

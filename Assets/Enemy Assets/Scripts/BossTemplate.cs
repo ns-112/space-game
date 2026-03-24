@@ -25,6 +25,26 @@ public class BossTemplate : MonoBehaviour
 
     public BossStage stage = BossStage.IDLE;
 
+    //reference to shield
+    private BossShield shield;
+
+    void Start()
+    {
+        shield = GetComponentInChildren<BossShield>();
+    }
+
+    public void TakeHit()
+    {
+        currentHits++;
+
+        Debug.Log("Boss hit: " + currentHits);
+
+        if (currentHits >= maxHits)
+        {
+            Destroy(gameObject);
+        }
+    }
+
     void Update()
     {
         //Timer between boss stages
@@ -34,15 +54,19 @@ public class BossTemplate : MonoBehaviour
             switch (stage)
             {
                 case BossStage.IDLE:
-                    if (Random.Range(0, 2) == 1) // FIXED RANGE
+                    if (Random.Range(0, 2) == 1)
                     {
                         stage = BossStage.ATTACK01;
                         stageTimer = 2;
+
+                        shield?.SetActiveShield(false); //OFF
                     }
                     else
                     {
                         stage = BossStage.ATTACK02;
                         stageTimer = 4;
+
+                        shield?.SetActiveShield(false); //OFF
                     }
                     break;
 
@@ -50,11 +74,15 @@ public class BossTemplate : MonoBehaviour
                 case BossStage.ATTACK02:
                     stage = BossStage.COOLDOWN;
                     stageTimer = 8;
+
+                    shield?.SetActiveShield(true); //ON
                     break;
 
                 case BossStage.COOLDOWN:
                     stage = BossStage.IDLE;
                     stageTimer = 8;
+
+                    shield?.SetActiveShield(false); //OFF
                     break;
             }
         }
@@ -81,22 +109,13 @@ public class BossTemplate : MonoBehaviour
         }
     }
 
-    //detect bullet hits
+    //use TakeHit
     void OnCollisionEnter(Collision collision)
     {
         if (collision.gameObject.GetComponent<Bullet>() != null)
         {
-            currentHits++;
-
-            // destroy bullet on hit
+            TakeHit();
             Destroy(collision.gameObject);
-
-            Debug.Log("Boss hit: " + currentHits);
-
-            if (currentHits >= maxHits)
-            {
-                Destroy(gameObject); // boss dies
-            }
         }
     }
 }

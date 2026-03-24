@@ -12,12 +12,15 @@ public class BossTemplate : MonoBehaviour
 {
     public float stageTimer = 8;
 
-    //health system
+    // Health system
     [SerializeField]
-    private int maxHits = 10;
+    private int maxHits = 75;
     private int currentHits = 0;
 
-    //Idle props
+    [Header("Death Effect")]
+    public GameObject deathEffectPrefab;
+
+    // Idle props
     [SerializeField]
     private float idleSpeed;
     private float angle;
@@ -26,7 +29,7 @@ public class BossTemplate : MonoBehaviour
     public int CurrentHits => currentHits;
     public BossStage stage = BossStage.IDLE;
 
-    //reference to shield
+    // Reference to shield
     private BossShield shield;
 
     void Start()
@@ -42,15 +45,30 @@ public class BossTemplate : MonoBehaviour
 
         if (currentHits >= maxHits)
         {
+            //Spawn explosion effect (same as enemies)
+            GameManager.Instance.SpawnEnemyDeathEffect(transform.position);
+
+            // disable shield before death
+            shield?.SetActiveShield(false);
+
             Destroy(gameObject);
         }
     }
 
+    private void Die()
+    {
+        // Spawn death effect if assigned
+        if (deathEffectPrefab != null)
+        {
+            Instantiate(deathEffectPrefab, transform.position, Quaternion.identity);
+        }
 
+        Destroy(gameObject);
+    }
 
     void Update()
     {
-        //Timer between boss stages
+        // Timer between boss stages
         stageTimer -= Time.deltaTime;
         if (stageTimer <= 0 && stageTimer != -1)
         {
@@ -61,15 +79,13 @@ public class BossTemplate : MonoBehaviour
                     {
                         stage = BossStage.ATTACK01;
                         stageTimer = 2;
-
-                        shield?.SetActiveShield(false); //OFF
+                        shield?.SetActiveShield(false); // OFF
                     }
                     else
                     {
                         stage = BossStage.ATTACK02;
                         stageTimer = 4;
-
-                        shield?.SetActiveShield(false); //OFF
+                        shield?.SetActiveShield(false); // OFF
                     }
                     break;
 
@@ -77,15 +93,13 @@ public class BossTemplate : MonoBehaviour
                 case BossStage.ATTACK02:
                     stage = BossStage.COOLDOWN;
                     stageTimer = 8;
-
-                    shield?.SetActiveShield(true); //ON
+                    shield?.SetActiveShield(true); // ON
                     break;
 
                 case BossStage.COOLDOWN:
                     stage = BossStage.IDLE;
                     stageTimer = 8;
-
-                    shield?.SetActiveShield(false); //OFF
+                    shield?.SetActiveShield(false); // OFF
                     break;
             }
         }
@@ -94,10 +108,8 @@ public class BossTemplate : MonoBehaviour
         {
             case BossStage.IDLE:
                 angle += idleSpeed * Time.deltaTime;
-
                 float x = Mathf.Cos(angle);
                 float y = Mathf.Sin(angle);
-
                 transform.position = new Vector3(x + centerPoint, 0, y);
                 break;
 
@@ -112,7 +124,6 @@ public class BossTemplate : MonoBehaviour
         }
     }
 
-    //use TakeHit
     void OnCollisionEnter(Collision collision)
     {
         if (collision.gameObject.GetComponent<Bullet>() != null)

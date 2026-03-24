@@ -3,7 +3,7 @@ using UnityEngine.UI;
 
 public class BossHealthBar : MonoBehaviour
 {
-    public BossTemplate boss;    // assign in Inspector
+    public BossTemplate boss;
     private Slider slider;
 
     [SerializeField] private float velocity = 0f;
@@ -11,41 +11,30 @@ public class BossHealthBar : MonoBehaviour
 
     private float toValue, midValue;
 
-    [SerializeField] private Vector3 screenOffset = new Vector3(0, -50, 0); // pixels below boss
-
     void Start()
     {
-        slider = GetComponent<Slider>();
-        if (!slider) Debug.LogError("Slider component missing on BossHealthBar!");
+        slider = GetComponentInChildren<Slider>();
 
         midValue = 1f;
         toValue = 1f;
+
         slider.value = 1f;
     }
 
     void Update()
     {
-        if (!boss || !slider) return;
-
-        // Update target health (0-1)
-        toValue = (float)(boss.MaxHits - boss.CurrentHits) / boss.MaxHits;
-
-        // Smooth interpolation like player health bar
-        midValue = Mathf.SmoothDamp(midValue, toValue, ref velocity, smoothTime);
-        slider.value = midValue;
-
-        // Make slider follow boss position on screen
-        Vector3 screenPos = Camera.main.WorldToScreenPoint(boss.transform.position);
-
-        if (screenPos.z > 0) // in front of camera
+        // Hide bar if boss doesn't exist yet
+        if (!boss)
         {
-            slider.gameObject.SetActive(true);
-            transform.position = screenPos + screenOffset;
-        }
-        else
-        {
-            // hide slider if boss is behind camera
             slider.gameObject.SetActive(false);
+            return;
         }
+
+        slider.gameObject.SetActive(true);
+
+        toValue = (float)(boss.MaxHits - boss.CurrentHits) / boss.MaxHits;
+        midValue = Mathf.SmoothDamp(midValue, toValue, ref velocity, smoothTime);
+
+        slider.value = midValue;
     }
 }

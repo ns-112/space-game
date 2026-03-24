@@ -1,4 +1,5 @@
 using System;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class Bullet : MonoBehaviour
@@ -18,16 +19,19 @@ public class Bullet : MonoBehaviour
     // Update is called once per frame
     void FixedUpdate()
     {
-        if (!MainParent)
+        if (MainParent.GetComponent<PlayerController>() == null)
         {   
             Debug.LogWarning("No parent added to child: " + name);
             Destroy(gameObject);
-        }
-        transform.position = new Vector3(transform.position.x + (Time.deltaTime * (speed * MainParent.GetComponent<PlayerController>().bulletSpeedMultiplier)), 0, transform.position.z);
-        if (transform.position.x > 15)
+        } else
         {
-            Destroy(gameObject);
+            transform.position = new Vector3(transform.position.x + (Time.deltaTime * (speed * MainParent.GetComponent<PlayerController>().bulletSpeedMultiplier)), 0, transform.position.z);
+            if (transform.position.x > 15)
+            {
+                Destroy(gameObject);
+            }
         }
+        
     }
 
     void OnCollisionEnter(Collision collision)

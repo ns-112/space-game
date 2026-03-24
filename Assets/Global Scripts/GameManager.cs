@@ -5,6 +5,7 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using TMPro;
 using UnityEngine.UI;
+using System.Diagnostics;
 
 public static class GameData
 {
@@ -22,6 +23,18 @@ public class GameManager : MonoBehaviour
     private List<GameObject> effects;
 
 
+    [SerializeField]
+    private GameObject bossPrefab;
+    //Boss has 2 spawn conditions: points or timer
+    public float bossTimer = 120; //Every minute OR
+    public int bossPointsMultiplier; //Every x points
+    public bool isBossActive = false;
+    private GameObject boss;
+
+    public float enemySpeedMod = 1;
+    public float enemySpawnMod = 1;
+
+
     private static Vector3Int gameTime = new Vector3Int(0, 0, 0);
     private float gameTimeIncrementor = 0;
     private static int points;
@@ -36,6 +49,7 @@ public class GameManager : MonoBehaviour
     private bool shieldUpdated = false;
 
     public bool gameRunning = true;
+    
 
 
     private float enemySpawnTimer = 5f;
@@ -179,6 +193,7 @@ public class GameManager : MonoBehaviour
         {
             gameTime.y += 1;
             gameTime.z = 0;
+            gameTimeIncrementor = 0;
         }
         //minutes
         if (gameTime.y == 60)
@@ -189,24 +204,78 @@ public class GameManager : MonoBehaviour
         //hours
         if (gameTime.x >= 60)
         {
-            Debug.Log("???");
+            UnityEngine.Debug.Log("???"); //Spent more than 60 hours in active game (what???)
         }
     }
 
-   
+    void SpawnBoss()
+    {
+        if (!isBossActive)
+        {
+            boss = Instantiate(bossPrefab);
+            boss.transform.position = new Vector3(15, 0, 0);
+            isBossActive = true;
+        } else
+        {
+            UnityEngine.Debug.LogWarning("Boss is already active and trying to spawn another.");
+        }
+    }
 
     void Update()
     {   
         if (gameRunning)
         {
             UpdateGameTime();
-            if (enemySpawnTimer <= 0)
+            if (enemySpawnTimer / enemySpawnMod <= 0)
             {
-                Instantiate(enemyPrefab);
+                Instantiate(enemyPrefab);//6
+                
                 enemySpawnTimer = UnityEngine.Random.Range(timerRange.x, timerRange.y);
             } else
             {
                 enemySpawnTimer -= Time.deltaTime;
+            }
+
+
+            //Make sure killing boss gives you points before toggling
+            //isBossActive back to false, and then reset the timer
+            if (points > 0)
+            {
+                if (points % bossPointsMultiplier == 0)
+                {
+                    bossTimer = 0;
+                } 
+            }
+            
+
+            if (bossTimer > 0)
+            {
+                if (!isBossActive)
+                {
+                    bossTimer -= Time.deltaTime;
+                } else
+                {
+                    bossTimer = 0;
+                }
+                
+                
+            } 
+
+            if (bossTimer <= 0)
+            {
+                bossTimer = 0;
+                if (!isBossActive)
+                {
+                    
+                    SpawnBoss();
+                }
+            }
+            if (boss != null)
+            {
+                if (boss.transform.position.x > 6)
+                {
+                    boss.transform.position = new Vector3(boss.transform.position.x - (Time.deltaTime * 4), 0, 0);
+                }
             }
 
         }
@@ -224,6 +293,7 @@ public class GameManager : MonoBehaviour
                 {
                     if (effects[i].CompareTag("PlayerDeath"))
                     {
+
                         Destroy(effects[i]);
                         effects.RemoveAt(i);
                         //DontDestroyOnLoad(gameObject);

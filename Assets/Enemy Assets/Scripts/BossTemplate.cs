@@ -126,10 +126,43 @@ public class BossTemplate : MonoBehaviour
 
     void OnCollisionEnter(Collision collision)
     {
+        if (collision.gameObject.CompareTag("MainPlayer"))
+        {
+            if (GameManager.Instance.ShieldActive)
+            {
+                GameManager.Instance.Shield -= 40;
+                if (GameManager.Instance.Shield < 0)
+                {
+                    GameManager.Instance.Health += GameManager.Instance.Shield / 2;
+                }
+            } else
+            {
+                GameManager.Instance.SpawnPlayerHitEffect(collision.transform.position);
+                GameManager.Instance.Health -= 20;
+            }
+            
+        }
         if (collision.gameObject.GetComponent<Bullet>() != null)
         {
-            TakeHit();
+            if (!shield)
+            {
+                TakeHit();
+            }
+            
             Destroy(collision.gameObject);
+
+            Debug.Log("Boss hit: " + currentHits);
+
+            if (currentHits >= maxHits)
+            {
+                GameManager.Instance.enemySpawnMod -= 0.01f;
+                GameManager.Instance.enemySpawnMod -= 0.01f;
+                GameManager.Instance.Points += 90;
+                GameManager.Instance.isBossActive = false;
+                GameManager.Instance.bossTimer = 120;
+                GameManager.Instance.SpawnEnemyDeathEffect(transform.position);
+                Destroy(gameObject); // boss dies
+            }
         }
     }
 }

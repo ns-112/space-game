@@ -149,7 +149,7 @@ public class PlayerController : MonoBehaviour
             HandleShield();
 
             //Create Bullet(s)
-            if (fire.WasPressedThisFrame() && bulletCD <= 0f)
+            if (fire.IsPressed() && bulletCD <= 0f)
             {
                 bulletCD = bulletCDinitial;
                 GameObject pref = Instantiate(BulletPrefab, BulletContainer.transform);

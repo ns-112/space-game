@@ -14,7 +14,7 @@ public class EnemyMovement : MonoBehaviour
     
     void Start()
     {
-        spawnPosition = new Vector2(9.5f, UnityEngine.Random.Range(-5f, 5f));
+        spawnPosition = new Vector2(11, UnityEngine.Random.Range(-5f, 5f));
         transform.position = new Vector3(spawnPosition.x, 0, spawnPosition.y);
         transform.parent = GameObject.Find("[Main] EnemyContainer").transform;
         ChooseEnemyType();
@@ -44,10 +44,10 @@ public class EnemyMovement : MonoBehaviour
             {   
                 //Normal Enemy Movement
                 case GameManager.EnemyType.Default:
-                transform.position = new Vector3(transform.position.x - (Time.deltaTime * enemySpeed), 0, spawnPosition.y);
+                transform.position = new Vector3(transform.position.x - (Time.deltaTime * enemySpeed * GameManager.Instance.enemySpeedMod), 0, spawnPosition.y);
                 break;
                 case GameManager.EnemyType.Wave:
-                transform.position = new Vector3(transform.position.x - (Time.deltaTime * enemySpeed), 0, spawnPosition.y + Mathf.Sin(Time.time * 2) * 2 * genericMultiplier);
+                transform.position = new Vector3(transform.position.x - (Time.deltaTime * enemySpeed * GameManager.Instance.enemySpeedMod), 0, spawnPosition.y + Mathf.Sin(Time.time * 2) * 2 * genericMultiplier);
                 break;
             }
             

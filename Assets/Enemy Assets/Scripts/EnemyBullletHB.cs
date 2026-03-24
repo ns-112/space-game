@@ -15,6 +15,8 @@ public class EnemyBullletHB : MonoBehaviour
         if (collision.transform.CompareTag("BulletHB"))
         {
             Destroy(collision.gameObject);
+            GameManager.Instance.enemySpeedMod += 0.02f;
+            GameManager.Instance.enemySpawnMod += 0.13f;
             GameManager.Instance.Points += 10;
             GameManager.Instance.SpawnEnemyDeathEffect(transform.parent.position);
             Destroy(transform.parent.gameObject);
